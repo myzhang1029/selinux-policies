@@ -1,0 +1,40 @@
+
+## <summary>policy for bird_lgproxy_go</summary>
+
+########################################
+## <summary>
+##	Execute bird_lgproxy_go_exec_t in the bird_lgproxy_go domain.
+## </summary>
+## <param name="domain">
+## <summary>
+##	Domain allowed to transition.
+## </summary>
+## </param>
+#
+interface(`bird_lgproxy_go_domtrans',`
+	gen_require(`
+		type bird_lgproxy_go_t, bird_lgproxy_go_exec_t;
+	')
+
+	corecmd_search_bin($1)
+	domtrans_pattern($1, bird_lgproxy_go_exec_t, bird_lgproxy_go_t)
+')
+
+######################################
+## <summary>
+##	Execute bird_lgproxy_go in the caller domain.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`bird_lgproxy_go_exec',`
+	gen_require(`
+		type bird_lgproxy_go_exec_t;
+	')
+
+	corecmd_search_bin($1)
+	can_exec($1, bird_lgproxy_go_exec_t)
+')

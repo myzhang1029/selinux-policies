@@ -1,0 +1,9 @@
+module ssh-krb5-forwarding-debian 1.0;
+
+require {
+    type sshd_t;
+    type tmp_t;
+    class file { getattr lock open read write };
+}
+
+allow sshd_t tmp_t:file { getattr lock open read write };

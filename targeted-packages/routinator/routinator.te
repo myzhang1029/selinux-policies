@@ -1,0 +1,39 @@
+policy_module(routinator, 1.0.3)
+
+########################################
+#
+# Declarations
+#
+
+type routinator_t;
+type routinator_exec_t;
+init_daemon_domain(routinator_t, routinator_exec_t)
+
+type routinator_var_lib_t;
+files_type(routinator_var_lib_t)
+
+########################################
+#
+# routinator local policy
+#
+ifdef(`distro_redhat',`
+    init_nnp_daemon_domain(routinator_t)
+')
+allow init_t routinator_var_lib_t:lnk_file read;
+
+allow routinator_t routinator_var_lib_t:file map;
+manage_dirs_pattern(routinator_t, routinator_var_lib_t, routinator_var_lib_t)
+manage_files_pattern(routinator_t, routinator_var_lib_t, routinator_var_lib_t)
+manage_lnk_files_pattern(routinator_t, routinator_var_lib_t, routinator_var_lib_t)
+files_var_lib_filetrans(routinator_t, routinator_var_lib_t, { dir file lnk_file })
+
+allow routinator_t self:tcp_socket { listen accept };
+corenet_tcp_bind_generic_port(routinator_t)
+corenet_tcp_connect_http_port(routinator_t)
+rsync_entry_type(routinator_t)
+rsync_exec(routinator_t)
+corenet_tcp_connect_rsync_port(routinator_t)
+
+files_read_etc_files(routinator_t)
+auth_use_nsswitch(routinator_t)
+sysnet_dns_name_resolve(routinator_t)

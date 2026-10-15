@@ -1,0 +1,12 @@
+module ssh-krb5-forwarding-el 1.4;
+
+require {
+    type sshd_session_t;
+    type staff_t;
+    type tmp_t;
+    class file { create open setattr unlink write };
+    class key { write };
+}
+
+allow sshd_session_t tmp_t:file { create open setattr unlink write };
+allow staff_t sshd_session_t:key write;

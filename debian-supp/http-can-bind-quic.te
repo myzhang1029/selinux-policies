@@ -1,0 +1,13 @@
+module http-can-bind-quic 1.0;
+
+require {
+    type httpd_t;
+    type reserved_port_t;
+    type node_t;
+    class udp_socket { name_bind node_bind };
+}
+
+#============= httpd_t ==============
+
+allow httpd_t node_t:udp_socket node_bind;
+allow httpd_t reserved_port_t:udp_socket name_bind;

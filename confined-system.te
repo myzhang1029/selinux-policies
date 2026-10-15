@@ -1,0 +1,32 @@
+module confined-system 1.2;
+
+require {
+    type http_port_t;
+    type initrc_t;
+    type init_t;
+    type semanage_t;
+    type named_cache_t;
+    type initrc_tmp_t;
+    type file_context_t;
+    type semanage_store_t;
+    type selinux_config_t;
+    class tcp_socket name_connect;
+    class file { open read relabelfrom relabelto };
+    class dir { relabelfrom relabelto };
+    class netlink_generic_socket { bind create getattr read write };
+    class system status;
+}
+
+# Use curl in systemd units
+allow init_t http_port_t:tcp_socket name_connect;
+# Operate on wireguard interfaces and configs
+allow init_t initrc_tmp_t:file open;
+allow init_t self:netlink_generic_socket { bind create getattr read write };
+
+allow initrc_t init_t:system status;
+allow initrc_t named_cache_t:file { open read };
+
+allow semanage_t file_context_t:file { relabelfrom relabelto };
+allow semanage_t selinux_config_t:file { relabelfrom relabelto };
+allow semanage_t semanage_store_t:dir { relabelfrom relabelto };
+allow semanage_t semanage_store_t:file { relabelfrom relabelto };

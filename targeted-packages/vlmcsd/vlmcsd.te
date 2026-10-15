@@ -1,0 +1,27 @@
+policy_module(vlmcsd, 1.0.3)
+
+########################################
+#
+# Declarations
+#
+
+type vlmcsd_t;
+type vlmcsd_exec_t;
+init_daemon_domain(vlmcsd_t, vlmcsd_exec_t)
+
+########################################
+#
+# vlmcsd local policy
+#
+require {
+    type unreserved_port_t;
+    class tcp_socket { name_bind };
+}
+
+ifdef(`distro_redhat',`
+    init_nnp_daemon_domain(vlmcsd_t)
+')
+allow vlmcsd_t self:tcp_socket create_stream_socket_perms;
+allow vlmcsd_t unreserved_port_t:tcp_socket name_bind;
+corenet_tcp_bind_generic_node(vlmcsd_t)
+domain_use_interactive_fds(vlmcsd_t)

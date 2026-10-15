@@ -1,0 +1,18 @@
+module journald-supplement 1.1;
+
+require {
+    type systemd_journal_init_t;
+    type var_log_t;
+    type etc_runtime_t;
+    type systemd_journal_t;
+    class dir { search watch };
+    class file { open read map };
+    class process signal;
+}
+
+#============= systemd_journal_init_t ==============
+allow systemd_journal_init_t var_log_t:dir search;
+allow systemd_journal_init_t etc_runtime_t:file { open read };
+allow systemd_journal_init_t systemd_journal_t:dir watch;
+allow systemd_journal_init_t systemd_journal_t:file map;
+allow systemd_journal_init_t self:process signal;

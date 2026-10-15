@@ -1,0 +1,9 @@
+module ip-vxlan 1.0;
+
+require {
+    type ifconfig_t;
+    class capability net_bind_service;
+}
+
+#============= ifconfig_t ==============
+allow ifconfig_t self:capability net_bind_service;

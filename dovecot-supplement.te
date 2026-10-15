@@ -1,0 +1,17 @@
+module dovecot-supplement 1.0;
+
+require {
+    type chkpwd_t;
+    type dovecot_t;
+    type dovecot_auth_exec_t;
+    type dovecot_auth_t;
+    type init_t;
+    class file execute_no_trans;
+    class process2 nnp_transition;
+    class capability dac_override;
+}
+allow init_t dovecot_t:process2 nnp_transition;
+allow dovecot_t dovecot_auth_exec_t:file execute_no_trans;
+allow dovecot_t dovecot_auth_t:process2 nnp_transition;
+allow dovecot_auth_t chkpwd_t:process2 nnp_transition;
+allow chkpwd_t self:capability dac_override;

@@ -1,0 +1,12 @@
+module hostapd-supplement 1.0;
+
+require {
+    type hostapd_t;
+    type debugfs_t;
+    class capability sys_module;
+    class dir search;
+}
+
+#============= hostapd_t ==============
+allow hostapd_t debugfs_t:dir search;
+allow hostapd_t self:capability sys_module;

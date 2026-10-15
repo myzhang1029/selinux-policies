@@ -1,0 +1,3 @@
+/usr/bin/routinator		--		gen_context(system_u:object_r:routinator_exec_t,s0)
+
+/var/lib/(private/)?routinator(/.*)?		gen_context(system_u:object_r:routinator_var_lib_t,s0)

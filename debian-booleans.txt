@@ -1,0 +1,3 @@
+systemd_tmpfiles_manage_all
+uc01: httpd_can_network_connect
+sudo semanage fcontext -a -t cert_t /usr/share/ca-certificates'(/.*)?'

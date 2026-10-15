@@ -1,0 +1,40 @@
+
+## <summary>policy for ripe_atlas</summary>
+
+########################################
+## <summary>
+##	Execute ripe_atlas_exec_t in the ripe_atlas domain.
+## </summary>
+## <param name="domain">
+## <summary>
+##	Domain allowed to transition.
+## </summary>
+## </param>
+#
+interface(`ripe_atlas_domtrans',`
+	gen_require(`
+		type ripe_atlas_t, ripe_atlas_exec_t;
+	')
+
+	corecmd_search_bin($1)
+	domtrans_pattern($1, ripe_atlas_exec_t, ripe_atlas_t)
+')
+
+######################################
+## <summary>
+##	Execute ripe_atlas in the caller domain.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`ripe_atlas_exec',`
+	gen_require(`
+		type ripe_atlas_exec_t;
+	')
+
+	corecmd_search_bin($1)
+	can_exec($1, ripe_atlas_exec_t)
+')

@@ -1,0 +1,3 @@
+/usr/bin/dufs		--	gen_context(system_u:object_r:dufs_exec_t,s0)
+
+/run/dufs(/.*)?			gen_context(system_u:object_r:dufs_var_run_t,s0)

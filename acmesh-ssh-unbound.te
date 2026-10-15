@@ -1,0 +1,12 @@
+module acmesh-ssh-unbound 1.0;
+
+require {
+    type acmesh_nonroot_t;
+    type ssh_exec_t;
+    type ssh_port_t;
+    class file { execute execute_no_trans getattr ioctl map open read };
+    class tcp_socket name_connect;
+}
+
+allow acmesh_nonroot_t ssh_exec_t:file { execute execute_no_trans getattr map open read };
+allow acmesh_nonroot_t ssh_port_t:tcp_socket name_connect;

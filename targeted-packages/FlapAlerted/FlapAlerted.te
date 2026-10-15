@@ -1,0 +1,37 @@
+policy_module(FlapAlerted, 1.0.0)
+
+########################################
+#
+# Declarations
+#
+
+type FlapAlerted_t;
+type FlapAlerted_exec_t;
+init_daemon_domain(FlapAlerted_t, FlapAlerted_exec_t)
+
+########################################
+#
+# FlapAlerted local policy
+#
+
+require {
+    type FlapAlerted_t;
+    class tcp_socket { accept listen };
+}
+
+allow FlapAlerted_t self:fifo_file rw_fifo_file_perms;
+allow FlapAlerted_t self:unix_stream_socket create_stream_socket_perms;
+allow FlapAlerted_t self:tcp_socket { accept listen };
+corenet_tcp_bind_generic_node(FlapAlerted_t)
+corenet_tcp_bind_generic_port(FlapAlerted_t)
+dev_read_sysfs(FlapAlerted_t)
+fs_search_cgroup_dirs(FlapAlerted_t)
+init_nnp_daemon_domain(FlapAlerted_t)
+
+domain_use_interactive_fds(FlapAlerted_t)
+
+files_read_etc_files(FlapAlerted_t)
+
+miscfiles_read_localization(FlapAlerted_t)
+
+sysnet_dns_name_resolve(FlapAlerted_t)

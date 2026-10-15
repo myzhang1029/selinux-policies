@@ -1,0 +1,45 @@
+policy_module(dufs, 1.0.4)
+
+########################################
+#
+# Declarations
+#
+
+type dufs_t;
+type dufs_exec_t;
+init_daemon_domain(dufs_t, dufs_exec_t)
+
+type dufs_var_run_t;
+files_pid_file(dufs_var_run_t)
+
+########################################
+#
+# dufs local policy
+#
+require {
+    type httpd_t;
+    class sock_file { create unlink };
+    class unix_stream_socket connectto;
+}
+
+ifdef(`distro_redhat',`
+    init_nnp_daemon_domain(dufs_t)
+')
+
+# For cpu.max
+allow dufs_t cgroup_t:file read;
+fs_search_cgroup_dirs(dufs_t)
+
+apache_read_sys_content_rw_dirs(dufs_t)
+apache_manage_sys_content_rw(dufs_t)
+apache_delete_sys_content_rw(dufs_t)
+
+allow dufs_t self:unix_stream_socket create_stream_socket_perms;
+allow dufs_t dufs_var_run_t:sock_file { create unlink };
+manage_dirs_pattern(dufs_t, dufs_var_run_t, dufs_var_run_t)
+manage_files_pattern(dufs_t, dufs_var_run_t, dufs_var_run_t)
+manage_lnk_files_pattern(dufs_t, dufs_var_run_t, dufs_var_run_t)
+files_pid_filetrans(dufs_t, dufs_var_run_t, { dir file lnk_file })
+# Allow web proxy access
+allow httpd_t dufs_t:unix_stream_socket connectto;
+allow httpd_t dufs_var_run_t:sock_file write;

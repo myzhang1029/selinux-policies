@@ -1,0 +1,3 @@
+/lib/systemd/system/stayrtr.service		--	gen_context(system_u:object_r:stayrtr_unit_file_t,s0)
+
+/usr/bin/stayrtr		--	gen_context(system_u:object_r:stayrtr_exec_t,s0)

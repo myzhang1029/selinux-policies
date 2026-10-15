@@ -1,0 +1,3 @@
+/var/lib/unbound(/.*)?                             system_u:object_r:named_cache_t:s0
+# So that remote control works
+/var/lib/unbound/\.ssh(/.*)?                       system_u:object_r:ssh_home_t:s0

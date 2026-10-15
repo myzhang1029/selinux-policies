@@ -1,0 +1,35 @@
+module asterisk-allstar 1.1;
+
+require {
+    type asterisk_t;
+    type asterisk_runtime_t;
+    type asterisk_tmpfs_t;
+    type asterisk_var_lib_t;
+    type debugfs_t;
+    type etc_runtime_t;
+    type udev_runtime_t;
+    type unreserved_port_t;
+    type http_port_t;
+    class tcp_socket { name_connect name_bind };
+    class dir { create getattr search setattr };
+    class file { getattr map open read };
+    class lnk_file { create read rename unlink };
+    class netlink_kobject_uevent_socket { bind create getattr getopt read setopt };
+}
+
+#============= asterisk_t ==============
+
+allow asterisk_t asterisk_runtime_t:dir setattr;
+allow asterisk_t asterisk_tmpfs_t:dir create;
+allow asterisk_t asterisk_tmpfs_t:file map;
+allow asterisk_t asterisk_var_lib_t:lnk_file { create read rename unlink };
+
+allow asterisk_t debugfs_t:dir search;
+allow asterisk_t etc_runtime_t:file { getattr open read };
+allow asterisk_t self:netlink_kobject_uevent_socket { bind create getattr getopt read setopt };
+
+allow asterisk_t udev_runtime_t:dir search;
+allow asterisk_t udev_runtime_t:file { getattr open read };
+
+allow asterisk_t http_port_t:tcp_socket name_connect;
+allow asterisk_t unreserved_port_t:tcp_socket { name_connect name_bind };

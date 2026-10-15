@@ -1,0 +1,10 @@
+module ssh-unbound 1.1;
+
+require {
+    type named_cache_t;
+    type sshd_session_t;
+    class dir { getattr search };
+}
+
+#============= sshd_session_t ==============
+allow sshd_session_t named_cache_t:dir { getattr search };

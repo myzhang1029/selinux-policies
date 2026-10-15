@@ -1,0 +1,168 @@
+policy_module(ripe_atlas, 1.0.26)
+
+########################################
+#
+# Declarations
+#
+
+type ripe_atlas_t;
+type ripe_atlas_exec_t;
+init_daemon_domain(ripe_atlas_t, ripe_atlas_exec_t)
+type ripe_atlas_helper_t;
+type ripe_atlas_helper_exec_t;
+init_daemon_domain(ripe_atlas_helper_t, ripe_atlas_helper_exec_t)
+type ripe_atlas_spool_t;
+ifdef(`distro_redhat',`
+    files_spool_file(ripe_atlas_spool_t)
+')
+ifndef(`distro_redhat',`
+    files_type(ripe_atlas_spool_t)
+')
+fs_associate(ripe_atlas_spool_t)
+files_spool_filetrans(ripe_atlas_t, ripe_atlas_spool_t, dir)
+type ripe_atlas_run_t;
+files_type(ripe_atlas_run_t)
+fs_associate_tmpfs(ripe_atlas_run_t)
+type ripe_atlas_usr_share_t;
+files_type(ripe_atlas_usr_share_t)
+fs_associate(ripe_atlas_usr_share_t)
+
+ifndef(`distro_redhat',`
+    systemd_tmpfilesd_managed(ripe_atlas_spool_t)
+    systemd_tmpfilesd_managed(ripe_atlas_run_t)
+')
+
+########################################
+#
+# ripe_atlas local policy
+#
+require {
+    type unreserved_port_t;
+    type init_t;
+    type proc_t;
+    type shell_exec_t;
+    type sysctl_net_t;
+ifdef(`distro_redhat',`
+    type passwd_file_t;
+    type systemd_userdbd_runtime_t;
+')
+ifndef(`distro_redhat',`
+    type mnt_t;
+    attribute domain;
+')
+    class dir { add_name create getattr mounton open read relabelto remove_name rmdir search setattr write };
+    class file { append create getattr ioctl setattr unlink };
+    class process { getcap setcap signull };
+    class netlink_route_socket { bind create getattr nlmsg_read read setopt write };
+    class tcp_socket name_bind;
+}
+
+# Allow operations on our types
+allow ripe_atlas_t ripe_atlas_helper_exec_t:file { execute execute_no_trans map open read };
+allow ripe_atlas_t ripe_atlas_run_t:dir { add_name create getattr open read remove_name search write };
+allow ripe_atlas_t ripe_atlas_run_t:file { append create getattr ioctl open read unlink write };
+allow ripe_atlas_t ripe_atlas_spool_t:dir { add_name create getattr open read remove_name search write };
+allow ripe_atlas_t ripe_atlas_spool_t:file { append create getattr open read rename unlink write };
+allow ripe_atlas_t ripe_atlas_usr_share_t:dir { getattr open read search };
+allow ripe_atlas_t ripe_atlas_usr_share_t:file { getattr open read };
+allow ripe_atlas_t self:process { getcap setcap signull };
+allow ripe_atlas_t self:fifo_file rw_fifo_file_perms;
+
+# init
+ifdef(`distro_redhat',`
+    init_nnp_daemon_domain(ripe_atlas_t)
+')
+allow init_t ripe_atlas_run_t:dir { create getattr mounton open read relabelto remove_name rmdir search setattr write };
+allow init_t ripe_atlas_run_t:file { getattr setattr unlink };
+allow init_t ripe_atlas_spool_t:dir { getattr mounton search };
+
+# Config loading
+# For nsswitch.conf
+files_read_etc_files(ripe_atlas_t)
+sysnet_read_config(ripe_atlas_t)
+miscfiles_search_generic_cert_dirs(ripe_atlas_t)
+miscfiles_read_generic_certs(ripe_atlas_t)
+dev_list_sysfs(ripe_atlas_t)
+dev_read_sysfs(ripe_atlas_t)
+kernel_list_proc(ripe_atlas_t)
+miscfiles_read_localization(ripe_atlas_t)
+ifndef(`distro_redhat',`
+    miscfiles_getattr_localization(ripe_atlas_t)
+')
+kernel_read_network_state(ripe_atlas_t)
+kernel_read_network_state_symlinks(ripe_atlas_t)
+ifdef(`distro_redhat',`
+    logging_create_devlog_dev(ripe_atlas_t)
+')
+ifndef(`distro_redhat',`
+    logging_send_syslog_msg(ripe_atlas_t)
+')
+
+# Incoming connections (HTTP POST and telnetd)
+corenet_tcp_bind_http_cache_port(ripe_atlas_t) # :8080
+ifdef(`distro_redhat',`
+    corenet_tcp_bind_xinuexpansion3_port(ripe_atlas_t) # :2023
+')
+ifndef(`distro_redhat',`
+    allow ripe_atlas_t unreserved_port_t:tcp_socket name_bind; # :2023
+')
+corenet_tcp_bind_generic_port(ripe_atlas_t)
+corenet_udp_bind_generic_port(ripe_atlas_t)
+corenet_tcp_bind_generic_node(ripe_atlas_t)
+corenet_udp_bind_generic_node(ripe_atlas_t)
+
+# Needed for UDP traceroute
+allow ripe_atlas_t unreserved_port_t:udp_socket name_bind;
+
+# Outgoing connections to anything
+allow ripe_atlas_t self:capability net_raw;
+allow ripe_atlas_t self:tcp_socket create_stream_socket_perms;
+allow ripe_atlas_t self:udp_socket create_socket_perms;
+allow ripe_atlas_t self:unix_stream_socket create_stream_socket_perms;
+allow ripe_atlas_t self:unix_dgram_socket create_socket_perms;
+allow ripe_atlas_t self:icmp_socket create_socket_perms;
+allow ripe_atlas_t self:rawip_socket { bind connect create getattr read setopt write };
+allow ripe_atlas_t unreserved_port_t:rawip_socket name_bind;
+corenet_tcp_sendrecv_generic_if(ripe_atlas_t)
+corenet_udp_sendrecv_generic_if(ripe_atlas_t)
+corenet_tcp_sendrecv_generic_node(ripe_atlas_t)
+corenet_udp_sendrecv_generic_node(ripe_atlas_t)
+ifdef(`distro_redhat',`
+    corenet_tcp_sendrecv_all_ports(ripe_atlas_t)
+    corenet_udp_sendrecv_all_ports(ripe_atlas_t)
+')
+corenet_tcp_connect_all_ports(ripe_atlas_t)
+corenet_sendrecv_all_client_packets(ripe_atlas_t)
+kernel_stream_connect(ripe_atlas_t)
+kernel_dgram_send(ripe_atlas_t)
+
+# External command execution
+sysnet_exec_ifconfig(ripe_atlas_t)
+ssh_exec(ripe_atlas_t)
+corecmd_exec_bin(ripe_atlas_t)
+corecmd_search_bin(ripe_atlas_t)
+corecmd_shell_entry_type(ripe_atlas_t)
+
+# Other stuff
+dev_read_urand(ripe_atlas_t)
+# dfrm needs this
+fs_getattr_xattr_fs(ripe_atlas_t)
+fs_getattr_tmpfs(ripe_atlas_t)
+
+ifdef(`distro_redhat',`
+    # User db required to chroot and parse /usr/share/ripe-atlas/measurement.conf
+    allow ripe_atlas_t passwd_file_t:file { getattr open read };
+')
+
+# Dontaudit items
+dontaudit ripe_atlas_t self:netlink_route_socket { bind create getattr nlmsg_read read setopt write };
+dontaudit ripe_atlas_t sysctl_net_t:dir search;
+dontaudit ripe_atlas_t proc_t:file read;
+ifdef(`distro_redhat',`
+    dontaudit ripe_atlas_t systemd_userdbd_runtime_t:dir read;
+    dontaudit ripe_atlas_t systemd_userdbd_runtime_t:sock_file write;
+')
+ifndef(`distro_redhat',`
+    dontaudit ripe_atlas_t mnt_t:dir search;
+    dontaudit ripe_atlas_t domain:dir search;
+')

@@ -1,0 +1,40 @@
+
+## <summary>policy for FlapAlerted</summary>
+
+########################################
+## <summary>
+##	Execute FlapAlerted_exec_t in the FlapAlerted domain.
+## </summary>
+## <param name="domain">
+## <summary>
+##	Domain allowed to transition.
+## </summary>
+## </param>
+#
+interface(`FlapAlerted_domtrans',`
+	gen_require(`
+		type FlapAlerted_t, FlapAlerted_exec_t;
+	')
+
+	corecmd_search_bin($1)
+	domtrans_pattern($1, FlapAlerted_exec_t, FlapAlerted_t)
+')
+
+######################################
+## <summary>
+##	Execute FlapAlerted in the caller domain.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`FlapAlerted_exec',`
+	gen_require(`
+		type FlapAlerted_exec_t;
+	')
+
+	corecmd_search_bin($1)
+	can_exec($1, FlapAlerted_exec_t)
+')

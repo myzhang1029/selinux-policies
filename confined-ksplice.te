@@ -1,0 +1,14 @@
+module confined-ksplice 1.1;
+
+require {
+    type http_port_t;
+    type modules_object_t;
+    type init_t;
+    type var_t;
+    class tcp_socket name_connect;
+    class file { create ioctl open read write };
+}
+
+allow init_t http_port_t:tcp_socket name_connect;
+allow init_t var_t:file { create ioctl open read write };
+allow init_t modules_object_t:file write;

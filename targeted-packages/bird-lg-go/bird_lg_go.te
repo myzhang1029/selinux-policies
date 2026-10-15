@@ -1,0 +1,58 @@
+policy_module(bird_lg_go, 1.0.5)
+
+########################################
+#
+# Declarations
+#
+
+type bird_lg_go_t;
+type bird_lg_go_exec_t;
+init_daemon_domain(bird_lg_go_t, bird_lg_go_exec_t)
+
+type bird_lg_go_var_run_t;
+files_pid_file(bird_lg_go_var_run_t)
+
+########################################
+#
+# bird_lg_go local policy
+#
+require {
+    type httpd_t;
+    type sysfs_t;
+    class sock_file { create unlink };
+    class file { open read };
+    class unix_stream_socket connectto;
+}
+
+
+ifdef(`distro_redhat',`
+    init_nnp_daemon_domain(bird_lg_go_t)
+')
+
+allow bird_lg_go_t self:unix_stream_socket create_stream_socket_perms;
+allow bird_lg_go_t self:tcp_socket create_stream_socket_perms;
+
+init_create_pid_dirs(bird_lg_go_t)
+init_create_pid_socket(bird_lg_go_t)
+
+# For DNS and WHOIS
+allow bird_lg_go_t self:udp_socket create_socket_perms;
+corenet_tcp_connect_whois_port(bird_lg_go_t)
+sysnet_read_config(bird_lg_go_t)
+
+# port 8000 defaults to soundd_port, keeping it for simplicity
+corenet_tcp_connect_soundd_port(bird_lg_go_t)
+
+allow bird_lg_go_t self:unix_stream_socket create_stream_socket_perms;
+allow bird_lg_go_t bird_lg_go_var_run_t:sock_file { create unlink };
+manage_dirs_pattern(bird_lg_go_t, bird_lg_go_var_run_t, bird_lg_go_var_run_t)
+manage_files_pattern(bird_lg_go_t, bird_lg_go_var_run_t, bird_lg_go_var_run_t)
+manage_lnk_files_pattern(bird_lg_go_t, bird_lg_go_var_run_t, bird_lg_go_var_run_t)
+files_pid_filetrans(bird_lg_go_t, bird_lg_go_var_run_t, { dir file lnk_file })
+# Allow web proxy access
+allow httpd_t bird_lg_go_t:unix_stream_socket connectto;
+allow httpd_t bird_lg_go_var_run_t:sock_file write;
+
+# No need to allow Transparent HugePage
+#dev_read_sysfs(bird_lg_go_t)
+dontaudit bird_lg_go_t sysfs_t:file { open read };

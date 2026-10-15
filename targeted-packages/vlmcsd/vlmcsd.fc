@@ -1,0 +1,2 @@
+/usr/bin/vlmcsd		--	gen_context(system_u:object_r:vlmcsd_exec_t,s0)
+/usr/local/bin/vlmcsd	--	gen_context(system_u:object_r:vlmcsd_exec_t,s0)

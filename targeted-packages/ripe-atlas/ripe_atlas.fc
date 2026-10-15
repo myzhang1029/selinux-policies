@@ -1,0 +1,6 @@
+/usr/bin/ripe-atlas                             --      gen_context(system_u:object_r:ripe_atlas_exec_t,s0)
+/usr/sbin/ripe-atlas                            --      gen_context(system_u:object_r:ripe_atlas_exec_t,s0)
+/usr/libexec/ripe-atlas/measurement/(.*)        --      gen_context(system_u:object_r:ripe_atlas_helper_exec_t,s0)
+/var/spool/ripe-atlas(/.*)?                             gen_context(system_u:object_r:ripe_atlas_spool_t,s0)
+/run/ripe-atlas(/.*)?                                   gen_context(system_u:object_r:ripe_atlas_run_t,s0)
+/usr/share/ripe-atlas(/.*)?                             gen_context(system_u:object_r:ripe_atlas_usr_share_t,s0)

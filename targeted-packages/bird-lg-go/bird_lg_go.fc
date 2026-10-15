@@ -1,0 +1,7 @@
+/usr/bin/bird-lg-go			--	gen_context(system_u:object_r:bird_lg_go_exec_t,s0)
+/usr/sbin/bird-lg-go			--	gen_context(system_u:object_r:bird_lg_go_exec_t,s0)
+/usr/local/bin/bird-lg-go		--	gen_context(system_u:object_r:bird_lg_go_exec_t,s0)
+/usr/local/sbin/bird-lg-go		--	gen_context(system_u:object_r:bird_lg_go_exec_t,s0)
+
+/run/bird-lg-go(/.*)?				gen_context(system_u:object_r:bird_lg_go_var_run_t,s0)
+

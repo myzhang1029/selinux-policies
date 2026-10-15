@@ -1,0 +1,16 @@
+module acmesh-call-unbound 1.0;
+
+require {
+    type named_conf_t;
+    type named_exec_t;
+    type rndc_port_t;
+    type acmesh_nonroot_t;
+    class file { execute execute_no_trans getattr ioctl map open read };
+    class dir { getattr open read search };
+    class tcp_socket name_connect;
+}
+
+allow acmesh_nonroot_t named_conf_t:dir { getattr open read search };
+allow acmesh_nonroot_t named_conf_t:file { getattr ioctl open read };
+allow acmesh_nonroot_t named_exec_t:file { execute execute_no_trans getattr map open read };
+allow acmesh_nonroot_t rndc_port_t:tcp_socket name_connect;

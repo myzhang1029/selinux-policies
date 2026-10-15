@@ -1,0 +1,42 @@
+module semanage-supplement 1.1;
+
+require {
+    type selinux_config_t;
+    type devpts_t;
+    type file_context_t;
+    type tracefs_t;
+    type semanage_t;
+    type debugfs_t;
+    type hugetlbfs_t;
+    type pstore_t;
+    type semanage_store_t;
+    type policy_config_t;
+    type tmpfs_t;
+    type device_t;
+    type fs_t;
+    type cgroup_t;
+    attribute can_change_object_identity;
+    class filesystem getattr;
+    class dir { relabelfrom relabelto search };
+    class file { relabelfrom relabelto };
+    class capability dac_read_search;
+}
+
+#============= semanage_t ==============
+typeattribute semanage_t can_change_object_identity;
+allow semanage_t cgroup_t:filesystem getattr;
+allow semanage_t debugfs_t:dir search;
+allow semanage_t debugfs_t:filesystem getattr;
+allow semanage_t device_t:filesystem getattr;
+allow semanage_t devpts_t:filesystem getattr;
+allow semanage_t file_context_t:file { relabelfrom relabelto };
+allow semanage_t fs_t:filesystem getattr;
+allow semanage_t hugetlbfs_t:filesystem getattr;
+allow semanage_t policy_config_t:file { relabelfrom relabelto };
+allow semanage_t pstore_t:filesystem getattr;
+allow semanage_t self:capability dac_read_search;
+allow semanage_t selinux_config_t:file { relabelfrom relabelto };
+allow semanage_t semanage_store_t:dir { relabelfrom relabelto };
+allow semanage_t semanage_store_t:file { relabelfrom relabelto };
+allow semanage_t tmpfs_t:filesystem getattr;
+allow semanage_t tracefs_t:filesystem getattr;

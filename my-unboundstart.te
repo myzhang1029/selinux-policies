@@ -1,0 +1,27 @@
+module my-unboundstart 1.3;
+
+require {
+    type named_cache_t;
+    type named_conf_t;
+    type named_t;
+    type rndc_port_t;
+    type init_t;
+    type initrc_t;
+    type named_t;
+    type sysadm_t;
+    type sysadm_sudo_t;
+    class process2 nnp_transition;
+    class file { ioctl read write };
+    class tcp_socket name_connect;
+}
+
+allow init_t named_cache_t:file read;
+allow initrc_t named_cache_t:file write;
+allow init_t named_t:process2 nnp_transition;
+# Needed to have sh invoke unbound-control in ExecStartPost
+allow initrc_t named_t:process2 nnp_transition;
+allow init_t rndc_port_t:tcp_socket name_connect;
+
+# Allow admins to control unbound
+allow { sysadm_t sysadm_sudo_t } named_conf_t:file ioctl;
+allow { sysadm_t sysadm_sudo_t } rndc_port_t:tcp_socket name_connect;

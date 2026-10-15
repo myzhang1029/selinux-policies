@@ -1,0 +1,40 @@
+
+## <summary>policy for acmesh-nonroot</summary>
+
+########################################
+## <summary>
+##	Execute acmesh_nonroot_exec_t in the acmesh-nonroot domain.
+## </summary>
+## <param name="domain">
+## <summary>
+##	Domain allowed to transition.
+## </summary>
+## </param>
+#
+interface(`acmesh_nonroot_domtrans',`
+	gen_require(`
+		type acmesh_nonroot_t, acmesh_nonroot_exec_t;
+	')
+
+	corecmd_search_bin($1)
+	domtrans_pattern($1, acmesh_nonroot_exec_t, acmesh_nonroot_t)
+')
+
+######################################
+## <summary>
+##	Execute acmesh-nonroot in the caller domain.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`acmesh_nonroot_exec',`
+	gen_require(`
+		type acmesh_nonroot_exec_t;
+	')
+
+	corecmd_search_bin($1)
+	can_exec($1, acmesh_nonroot_exec_t)
+')

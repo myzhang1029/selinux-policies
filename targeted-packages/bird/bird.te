@@ -1,0 +1,108 @@
+# Based on fedora-selinux/selinux-policy/policy/modules/contrib/bird.te@2e05503
+policy_module(bird, 1.2.7)
+
+########################################
+#
+# Declarations
+#
+
+type bird_t;
+type bird_exec_t;
+init_daemon_domain(bird_t, bird_exec_t)
+
+type bird_initrc_exec_t;
+init_script_file(bird_initrc_exec_t)
+
+type bird_etc_t;
+files_config_file(bird_etc_t)
+
+type bird_log_t;
+logging_log_file(bird_log_t)
+
+type bird_var_run_t;
+ifdef(`distro_redhat',`
+    files_pid_file(bird_var_run_t)
+')
+ifndef(`distro_redhat',`
+    files_type(bird_var_run_t)
+')
+
+########################################
+#
+# Local policy
+#
+
+require {
+    type init_t;
+# Debian doesn't have these types yet
+ifdef(`distro_redhat',`
+    type babel_port_t;
+    type bfd_control_port_t;
+    type bfd_multi_port_t;
+')
+ifndef(`distro_redhat',`
+    type initrc_t;
+')
+    class unix_stream_socket connectto;
+}
+
+ifdef(`distro_redhat',`
+    init_nnp_daemon_domain(bird_t)
+')
+
+fs_associate_tmpfs(bird_var_run_t)
+
+# Allow systemd to prepare the socket path and reload bird
+allow init_t bird_var_run_t:dir { create getattr mounton open read rmdir setattr };
+allow init_t bird_t:unix_stream_socket connectto;
+
+sysnet_read_config(bird_t)
+ifndef(`distro_redhat',`
+    # /etc/nsswitch.conf
+    files_read_etc_files(bird_t)
+    allow initrc_t bird_var_run_t:dir search;
+    allow initrc_t bird_var_run_t:sock_file write;
+')
+allow bird_t self:capability { net_admin net_raw };
+allow bird_t self:fifo_file { read write };
+allow bird_t self:netlink_route_socket create_netlink_socket_perms;
+allow bird_t self:tcp_socket create_stream_socket_perms;
+
+allow bird_t bird_etc_t:file read_file_perms;
+allow bird_t bird_etc_t:dir { getattr open read search };
+
+allow bird_t bird_log_t:file { create_file_perms append_file_perms setattr_file_perms };
+logging_log_filetrans(bird_t, bird_log_t, file)
+
+allow bird_t bird_var_run_t:sock_file manage_sock_file_perms;
+allow bird_t bird_var_run_t:dir { add_name remove_name search write };
+ifdef(`distro_redhat',`
+    files_pid_filetrans(bird_t, bird_var_run_t, sock_file)
+')
+
+allow bird_t self:tcp_socket create_stream_socket_perms;
+allow bird_t self:udp_socket create_socket_perms;
+allow bird_t self:unix_stream_socket create_stream_socket_perms;
+allow bird_t self:unix_dgram_socket create_socket_perms;
+
+corenet_all_recvfrom_unlabeled(bird_t)
+corenet_all_recvfrom_netlabel(bird_t)
+corenet_tcp_sendrecv_generic_if(bird_t)
+corenet_tcp_bind_generic_node(bird_t)
+corenet_tcp_sendrecv_generic_node(bird_t)
+
+corenet_tcp_bind_bgp_port(bird_t)
+corenet_tcp_connect_bgp_port(bird_t)
+
+ifdef(`distro_redhat',`
+    corenet_udp_bind_babel_port(bird_t)
+    corenet_udp_bind_bfd_control_port(bird_t)
+    corenet_udp_bind_bfd_multi_port(bird_t)
+')
+corenet_udp_bind_generic_node(bird_t)
+
+# /etc/iproute2/rt_realms
+
+logging_send_syslog_msg(bird_t)
+
+miscfiles_read_localization(bird_t)

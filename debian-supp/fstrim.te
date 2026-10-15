@@ -1,0 +1,17 @@
+
+module fstrim 1.0;
+
+require {
+	type var_t;
+	type fsadm_t;
+	type home_root_t;
+	type default_t;
+	type dosfs_t;
+	class dir { ioctl read write };
+}
+
+#============= fsadm_t ==============
+allow fsadm_t default_t:dir write;
+allow fsadm_t dosfs_t:dir { ioctl read write };
+allow fsadm_t home_root_t:dir write;
+allow fsadm_t var_t:dir write;

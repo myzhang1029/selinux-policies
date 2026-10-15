@@ -1,0 +1,55 @@
+policy_module(zerotier_one, 1.0.6)
+
+########################################
+#
+# Declarations
+#
+
+type zerotier_one_t;
+type zerotier_one_exec_t;
+init_daemon_domain(zerotier_one_t, zerotier_one_exec_t)
+
+type zerotier_one_var_lib_t;
+files_type(zerotier_one_var_lib_t)
+
+type zerotier_one_unit_file_t;
+systemd_unit_file(zerotier_one_unit_file_t)
+
+########################################
+#
+# zerotier_one local policy
+#
+
+require {
+    type systemd_userdbd_runtime_t;
+    class capability { chown dac_read_search dac_override fowner fsetid net_admin setgid setuid };
+    class process setcap;
+    class tcp_socket { accept listen };
+    class tun_socket create;
+    class netlink_route_socket nlmsg_write;
+    class dir read;
+}
+
+allow zerotier_one_t self:capability { chown dac_read_search dac_override fowner fsetid net_admin setgid setuid };
+allow zerotier_one_t self:netlink_route_socket nlmsg_write;
+allow zerotier_one_t self:process setcap;
+dontaudit zerotier_one_t systemd_userdbd_runtime_t:dir read;
+auth_dontaudit_read_passwd_file(zerotier_one_t)
+
+allow zerotier_one_t self:unix_stream_socket create_stream_socket_perms;
+allow zerotier_one_t self:tcp_socket create_stream_socket_perms;
+corenet_tcp_bind_generic_node(zerotier_one_t)
+corenet_udp_bind_generic_node(zerotier_one_t)
+corenet_tcp_bind_generic_port(zerotier_one_t)
+corenet_udp_bind_generic_port(zerotier_one_t)
+allow zerotier_one_t self:tun_socket create;
+corenet_rw_tun_tap_dev(zerotier_one_t)
+kernel_read_network_state(zerotier_one_t)
+
+manage_dirs_pattern(zerotier_one_t, zerotier_one_var_lib_t, zerotier_one_var_lib_t)
+manage_files_pattern(zerotier_one_t, zerotier_one_var_lib_t, zerotier_one_var_lib_t)
+manage_lnk_files_pattern(zerotier_one_t, zerotier_one_var_lib_t, zerotier_one_var_lib_t)
+files_var_lib_filetrans(zerotier_one_t, zerotier_one_var_lib_t, { dir file lnk_file })
+
+files_read_etc_files(zerotier_one_t)
+sysnet_dns_name_resolve(zerotier_one_t)

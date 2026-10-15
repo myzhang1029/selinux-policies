@@ -1,0 +1,66 @@
+policy_module(acmesh-nonroot, 1.0.7)
+
+########################################
+#
+# Declarations
+#
+
+type acmesh_nonroot_t;
+type acmesh_nonroot_exec_t;
+init_daemon_domain(acmesh_nonroot_t, acmesh_nonroot_exec_t)
+
+type acmesh_nonroot_var_lib_t;
+files_type(acmesh_nonroot_var_lib_t)
+
+########################################
+#
+# acmesh-nonroot local policy
+#
+require {
+ifdef(`distro_redhat',`
+    type passwd_file_t;
+')
+    class dir { add_name getattr lock ioctl open read remove_name search setattr write };
+    class file { append create getattr lock ioctl open read setattr unlink write };
+    class lnk_file { create getattr setattr read write append rename link unlink ioctl lock };
+    class udp_socket { connect create getattr setopt };
+    class tcp_socket { connect create getattr getopt setopt };
+}
+
+# Allow systemd to invoke acmesh in timer jobs
+ifdef(`distro_redhat',`
+    init_nnp_daemon_domain(acmesh_nonroot_t)
+')
+
+# Self stuff
+files_search_var_lib(acmesh_nonroot_t)
+allow acmesh_nonroot_t self:fifo_file rw_fifo_file_perms;
+allow acmesh_nonroot_t acmesh_nonroot_var_lib_t:dir { add_name getattr lock ioctl open read remove_name search setattr write };
+allow acmesh_nonroot_t acmesh_nonroot_var_lib_t:file { append create getattr lock ioctl open read setattr unlink write };
+allow acmesh_nonroot_t acmesh_nonroot_var_lib_t:lnk_file { create getattr setattr read write append rename link unlink ioctl lock };
+
+# Connect to ACME endpoints
+miscfiles_read_generic_certs(acmesh_nonroot_t)
+sysnet_read_config(acmesh_nonroot_t)
+corenet_tcp_connect_http_port(acmesh_nonroot_t)
+allow acmesh_nonroot_t self:tcp_socket create_stream_socket_perms;
+allow acmesh_nonroot_t self:udp_socket create_socket_perms;
+
+# Create acme-challenge files
+apache_manage_sys_content(acmesh_nonroot_t)
+
+# Modify certificates
+miscfiles_manage_generic_cert_files(acmesh_nonroot_t)
+
+# acme.sh is a shell script and needs bin commands
+corecmd_check_exec_shell(acmesh_nonroot_t)
+corecmd_exec_bin(acmesh_nonroot_t)
+corecmd_mmap_bin_files(acmesh_nonroot_t)
+corecmd_shell_entry_type(acmesh_nonroot_t)
+ifdef(`distro_redhat',`
+    dontaudit acmesh_nonroot_t passwd_file_t:file { getattr open read };
+')
+
+files_read_etc_files(acmesh_nonroot_t)
+domain_use_interactive_fds(acmesh_nonroot_t)
+miscfiles_read_localization(acmesh_nonroot_t)

@@ -1,0 +1,40 @@
+
+## <summary>policy for vlmcsd</summary>
+
+########################################
+## <summary>
+##	Execute vlmcsd_exec_t in the vlmcsd domain.
+## </summary>
+## <param name="domain">
+## <summary>
+##	Domain allowed to transition.
+## </summary>
+## </param>
+#
+interface(`vlmcsd_domtrans',`
+	gen_require(`
+		type vlmcsd_t, vlmcsd_exec_t;
+	')
+
+	corecmd_search_bin($1)
+	domtrans_pattern($1, vlmcsd_exec_t, vlmcsd_t)
+')
+
+######################################
+## <summary>
+##	Execute vlmcsd in the caller domain.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`vlmcsd_exec',`
+	gen_require(`
+		type vlmcsd_exec_t;
+	')
+
+	corecmd_search_bin($1)
+	can_exec($1, vlmcsd_exec_t)
+')

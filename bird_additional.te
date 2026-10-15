@@ -1,0 +1,16 @@
+module bird_additional 1.0;
+
+require {
+    type unreserved_port_t;
+    type bird_t;
+    class tcp_socket { name_connect };
+    class udp_socket { name_bind };
+    type us_cli_port_t;
+}
+
+# For Debian
+allow bird_t unreserved_port_t:udp_socket name_bind;
+# For both
+allow bird_t unreserved_port_t:tcp_socket name_connect;
+# For EL
+allow bird_t us_cli_port_t:tcp_socket name_connect;

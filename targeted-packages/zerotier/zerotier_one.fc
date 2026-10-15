@@ -1,0 +1,6 @@
+/usr/lib/systemd/system/zerotier-one.service		--	gen_context(system_u:object_r:zerotier_one_unit_file_t,s0)
+
+/usr/bin/zerotier-one		--	gen_context(system_u:object_r:zerotier_one_exec_t,s0)
+/usr/sbin/zerotier-one		--	gen_context(system_u:object_r:zerotier_one_exec_t,s0)
+
+/var/lib/zerotier-one(/.*)?		gen_context(system_u:object_r:zerotier_one_var_lib_t,s0)

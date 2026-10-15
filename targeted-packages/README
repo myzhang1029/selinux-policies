@@ -1,0 +1,12 @@
+Program             Tested On
+------------------- ---------
+bird                Both
+bird_lg_go          RHEL only
+bird_lgproxy_go     Both
+dufs                RHEL only
+FlapAlerted         RHEL only
+ripe-atlas          Both
+routinator          RHEL only
+stayrtr             RHEL only
+vlmcsd              RHEL only
+zerotier            RHEL only

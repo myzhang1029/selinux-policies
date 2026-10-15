@@ -1,0 +1,49 @@
+policy_module(stayrtr, 1.0.11)
+
+########################################
+#
+# Declarations
+#
+
+type stayrtr_t;
+type stayrtr_exec_t;
+init_daemon_domain(stayrtr_t, stayrtr_exec_t)
+
+type stayrtr_unit_file_t;
+systemd_unit_file(stayrtr_unit_file_t)
+
+########################################
+#
+# stayrtr local policy
+#
+require {
+    type cgroup_t;
+    type sysctl_net_t;
+    type sysfs_t;
+    class dir search;
+    class file { open read };
+}
+
+ifdef(`distro_redhat',`
+    init_nnp_daemon_domain(stayrtr_t)
+')
+sysnet_read_config(stayrtr_t)
+allow stayrtr_t self:tcp_socket create_stream_socket_perms;
+
+# For DNS only
+allow stayrtr_t self:udp_socket create_socket_perms;
+# Outgoing cache fetch
+corenet_tcp_connect_http_port(stayrtr_t)
+miscfiles_search_generic_cert_dirs(stayrtr_t)
+miscfiles_read_generic_certs(stayrtr_t)
+
+corenet_tcp_bind_generic_node(stayrtr_t)
+# port 8082
+corenet_tcp_bind_us_cli_port(stayrtr_t)
+
+# It doesn't do anything with these results
+kernel_dontaudit_search_network_sysctl(stayrtr_t)
+fs_dontaudit_search_cgroup_dirs(stayrtr_t)
+# No need to allow Transparent HugePage
+#dev_read_sysfs(stayrtr_t)
+dontaudit stayrtr_t sysfs_t:file { open read };

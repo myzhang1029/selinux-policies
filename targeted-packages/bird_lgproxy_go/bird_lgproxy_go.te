@@ -1,0 +1,66 @@
+policy_module(bird_lgproxy_go, 1.0.8)
+
+########################################
+#
+# Declarations
+#
+
+type bird_lgproxy_go_t;
+type bird_lgproxy_go_exec_t;
+init_daemon_domain(bird_lgproxy_go_t, bird_lgproxy_go_exec_t)
+
+########################################
+#
+# bird_lgproxy_go local policy
+#
+
+require {
+    type node_t;
+    type bird_t;
+    type bird_var_run_t;
+    type port_t;
+    type sysfs_t;
+    class file { open read };
+    class rawip_socket create;
+    class icmp_socket node_bind;
+    class sctp_socket create;
+    class sock_file write;
+    class unix_stream_socket connectto;
+}
+
+ifdef(`distro_redhat',`
+    init_nnp_daemon_domain(bird_lgproxy_go_t)
+')
+
+allow bird_lgproxy_go_t bird_t:unix_stream_socket connectto;
+allow bird_lgproxy_go_t bird_var_run_t:dir search;
+allow bird_lgproxy_go_t bird_var_run_t:sock_file write;
+
+sysnet_read_config(bird_lgproxy_go_t)
+files_read_etc_files(bird_lgproxy_go_t)
+ifndef(`distro_redhat',`
+    miscfiles_getattr_localization(bird_lgproxy_go_t)
+    miscfiles_read_localization(bird_lgproxy_go_t)
+')
+
+allow bird_lgproxy_go_t self:fifo_file { getattr read write };
+allow bird_lgproxy_go_t self:process { getsched signal signull };
+# Allow traceroute and birdcl
+corecmd_search_bin(bird_lgproxy_go_t)
+corecmd_exec_bin(bird_lgproxy_go_t)
+netutils_exec_traceroute(bird_lgproxy_go_t)
+corenet_tcp_bind_generic_node(bird_lgproxy_go_t)
+corenet_udp_bind_generic_node(bird_lgproxy_go_t)
+allow bird_lgproxy_go_t port_t:icmp_socket name_bind;
+allow bird_lgproxy_go_t self:tcp_socket create_stream_socket_perms;
+allow bird_lgproxy_go_t self:udp_socket create_socket_perms;
+allow bird_lgproxy_go_t self:icmp_socket create_socket_perms;
+allow bird_lgproxy_go_t self:rawip_socket create;
+allow bird_lgproxy_go_t self:sctp_socket create;
+allow bird_lgproxy_go_t node_t:icmp_socket node_bind;
+# port 8000 defaults to soundd_port, keeping it for simplicity
+corenet_tcp_bind_soundd_port(bird_lgproxy_go_t)
+
+# No need to allow Transparent HugePage
+#dev_read_sysfs(bird_lgproxy_go_t)
+dontaudit bird_lgproxy_go_t sysfs_t:file { open read };

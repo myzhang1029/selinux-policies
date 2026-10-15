@@ -1,0 +1,11 @@
+
+module getty-supplement 1.0;
+
+require {
+	type getty_t;
+	type tmpfs_t;
+	class dir { getattr open read };
+}
+
+#============= getty_t ==============
+allow getty_t tmpfs_t:dir { getattr open read };

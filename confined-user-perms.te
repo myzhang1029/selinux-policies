@@ -1,0 +1,88 @@
+# semanage boolean --modify --on ssh_sysadm_login
+module confined-user-perms 1.13;
+
+require {
+    attribute device_node;
+    attribute domain;
+    attribute file_type;
+    type configfs_t;
+    type file_context_t;
+    type passwd_file_t;
+    type shadow_t;
+    type semanage_read_lock_t;
+    type semanage_trans_lock_t;
+    type semanage_store_t;
+    type security_t;
+    type selinux_config_t;
+    type etc_t;
+    type tmp_t;
+    type var_log_t;
+    type var_lib_t;
+    type syslogd_var_run_t;
+    type init_var_lib_t;
+    type staff_t;
+    type sysadm_t;
+    type sysadm_sudo_t;
+    class capability { fsetid sys_ptrace net_admin kill };
+    class cap_userns sys_ptrace;
+    class security load_policy;
+    class file { create getattr open link lock map read relabelfrom relabelto rename setattr unlink watch write };
+    class dir { add_name create getattr open read relabelfrom relabelto remove_name rename rmdir search setattr watch write };
+    class lnk_file { getattr open read relabelfrom relabelto setattr };
+    class fifo_file { getattr open read relabelfrom relabelto setattr };
+    class sock_file { getattr open read relabelfrom relabelto setattr };
+    class blk_file { getattr open read relabelfrom relabelto setattr };
+    class chr_file { getattr open read relabelfrom relabelto setattr };
+    class netlink_netfilter_socket { create getopt read setopt write };
+}
+
+allow { staff_t sysadm_t sysadm_sudo_t } tmp_t:file { open unlink write };
+# All staff can read journal
+allow { staff_t sysadm_t sysadm_sudo_t } var_log_t:file { open map read };
+allow { staff_t sysadm_t sysadm_sudo_t } var_log_t:dir watch;
+allow { staff_t sysadm_t sysadm_sudo_t } syslogd_var_run_t:dir watch;
+allow { staff_t sysadm_t sysadm_sudo_t } init_var_lib_t:file map;
+allow sysadm_sudo_t var_log_t:file { unlink write };
+
+# Allow sysadm_sudo admin and firewall access
+allow sysadm_sudo_t self:capability { net_admin kill };
+allow sysadm_sudo_t self:netlink_netfilter_socket { create getopt read setopt write };
+
+# Allow sysadm_sudo to add and remove users
+allow sysadm_sudo_t file_type:dir { add_name create setattr write };
+allow sysadm_sudo_t file_type:file { create setattr write };
+allow sysadm_sudo_t etc_t:dir { add_name remove_name write };
+allow sysadm_sudo_t etc_t:file { create link unlink write };
+allow sysadm_sudo_t var_lib_t:dir { add_name write };
+allow sysadm_sudo_t passwd_file_t:file { create rename unlink write setattr };
+allow sysadm_sudo_t shadow_t:file { create rename unlink write setattr };
+allow sysadm_sudo_t self:capability fsetid;
+
+# Allow sysadm_sudo to relabel stuff
+allow sysadm_sudo_t file_type:file { getattr open read relabelfrom relabelto };
+allow sysadm_sudo_t file_type:dir { getattr open read relabelfrom relabelto search };
+allow sysadm_sudo_t file_type:lnk_file { getattr open read relabelfrom relabelto };
+allow sysadm_sudo_t file_type:fifo_file { getattr open read relabelfrom relabelto };
+allow sysadm_sudo_t file_type:sock_file { getattr open read relabelfrom relabelto };
+allow sysadm_sudo_t file_type:blk_file { getattr open read relabelfrom relabelto };
+allow sysadm_sudo_t file_type:chr_file { getattr open read relabelfrom relabelto };
+allow sysadm_sudo_t device_node:blk_file { getattr open read relabelfrom relabelto };
+allow sysadm_sudo_t device_node:chr_file { getattr open read relabelfrom relabelto };
+# userdel checks /proc process files
+allow sysadm_sudo_t domain:file { getattr open read };
+allow sysadm_sudo_t domain:dir { getattr open read search };
+allow sysadm_sudo_t domain:lnk_file read;
+allow sysadm_sudo_t self:cap_userns sys_ptrace;
+allow sysadm_sudo_t self:capability sys_ptrace;
+
+# Allow sysadm_sudo to alter selinux policies
+allow sysadm_sudo_t configfs_t:dir { getattr };
+allow sysadm_sudo_t semanage_read_lock_t:file { create lock write };
+allow sysadm_sudo_t semanage_store_t:dir { add_name create remove_name rename rmdir write };
+allow sysadm_sudo_t semanage_store_t:file { create map rename unlink write };
+allow sysadm_sudo_t semanage_trans_lock_t:file { lock write };
+allow sysadm_sudo_t file_context_t:dir { add_name remove_name write };
+allow sysadm_sudo_t file_context_t:file { create rename unlink write };
+allow sysadm_sudo_t security_t:security load_policy;
+allow sysadm_sudo_t selinux_config_t:dir { add_name remove_name write };
+allow sysadm_sudo_t selinux_config_t:file { create rename unlink write };

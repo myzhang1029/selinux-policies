@@ -1,0 +1,103 @@
+
+## <summary>policy for stayrtr</summary>
+
+########################################
+## <summary>
+##	Execute stayrtr_exec_t in the stayrtr domain.
+## </summary>
+## <param name="domain">
+## <summary>
+##	Domain allowed to transition.
+## </summary>
+## </param>
+#
+interface(`stayrtr_domtrans',`
+	gen_require(`
+		type stayrtr_t, stayrtr_exec_t;
+	')
+
+	corecmd_search_bin($1)
+	domtrans_pattern($1, stayrtr_exec_t, stayrtr_t)
+')
+
+######################################
+## <summary>
+##	Execute stayrtr in the caller domain.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`stayrtr_exec',`
+	gen_require(`
+		type stayrtr_exec_t;
+	')
+
+	corecmd_search_bin($1)
+	can_exec($1, stayrtr_exec_t)
+')
+########################################
+## <summary>
+##	Execute stayrtr server in the stayrtr domain.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed to transition.
+##	</summary>
+## </param>
+#
+interface(`stayrtr_systemctl',`
+	gen_require(`
+		type stayrtr_t;
+		type stayrtr_unit_file_t;
+	')
+
+	systemd_exec_systemctl($1)
+        systemd_read_fifo_file_passwd_run($1)
+	allow $1 stayrtr_unit_file_t:file read_file_perms;
+	allow $1 stayrtr_unit_file_t:service manage_service_perms;
+
+	ps_process_pattern($1, stayrtr_t)
+')
+
+
+########################################
+## <summary>
+##	All of the rules required to administrate
+##	an stayrtr environment
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+## <param name="role">
+##	<summary>
+##	Role allowed access.
+##	</summary>
+## </param>
+## <rolecap/>
+#
+interface(`stayrtr_admin',`
+	gen_require(`
+		type stayrtr_t;
+	type stayrtr_unit_file_t;
+	')
+
+	allow $1 stayrtr_t:process { signal_perms };
+	ps_process_pattern($1, stayrtr_t)
+
+    tunable_policy(`deny_ptrace',`',`
+        allow $1 stayrtr_t:process ptrace;
+    ')
+
+	stayrtr_systemctl($1)
+	admin_pattern($1, stayrtr_unit_file_t)
+	allow $1 stayrtr_unit_file_t:service all_service_perms;
+	optional_policy(`
+		systemd_passwd_agent_exec($1)
+		systemd_read_fifo_file_passwd_run($1)
+	')
+')

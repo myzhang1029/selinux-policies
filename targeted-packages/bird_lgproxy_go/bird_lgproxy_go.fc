@@ -1,0 +1,4 @@
+/usr/bin/bird-lgproxy-go		--	gen_context(system_u:object_r:bird_lgproxy_go_exec_t,s0)
+/usr/sbin/bird-lgproxy-go		--	gen_context(system_u:object_r:bird_lgproxy_go_exec_t,s0)
+/usr/local/bin/bird-lgproxy-go		--	gen_context(system_u:object_r:bird_lgproxy_go_exec_t,s0)
+/usr/local/sbin/bird-lgproxy-go		--	gen_context(system_u:object_r:bird_lgproxy_go_exec_t,s0)
