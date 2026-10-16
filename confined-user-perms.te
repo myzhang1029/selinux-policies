@@ -1,5 +1,5 @@
 # semanage boolean --modify --on ssh_sysadm_login
-module confined-user-perms 1.13;
+module confined-user-perms 1.15;
 
 require {
     attribute device_node;
@@ -33,7 +33,7 @@ require {
     class sock_file { getattr open read relabelfrom relabelto setattr };
     class blk_file { getattr open read relabelfrom relabelto setattr };
     class chr_file { getattr open read relabelfrom relabelto setattr };
-    class netlink_netfilter_socket { create getopt read setopt write };
+    class netlink_netfilter_socket { bind create getattr getopt read setopt write };
 }
 
 allow { staff_t sysadm_t sysadm_sudo_t } tmp_t:file { open unlink write };
@@ -46,7 +46,7 @@ allow sysadm_sudo_t var_log_t:file { unlink write };
 
 # Allow sysadm_sudo admin and firewall access
 allow sysadm_sudo_t self:capability { net_admin kill };
-allow sysadm_sudo_t self:netlink_netfilter_socket { create getopt read setopt write };
+allow sysadm_sudo_t self:netlink_netfilter_socket { bind create getattr getopt read setopt write };
 
 # Allow sysadm_sudo to add and remove users
 allow sysadm_sudo_t file_type:dir { add_name create setattr write };
