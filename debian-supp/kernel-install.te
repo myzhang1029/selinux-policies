@@ -1,0 +1,15 @@
+module kernel-install 1.0;
+
+require {
+    type httpd_sys_script_exec_t;
+    type modules_object_t;
+    type lib_t;
+    type bootloader_t;
+    class file { setattr unlink };
+    class dir { getattr open read };
+}
+
+#============= bootloader_t ==============
+allow bootloader_t httpd_sys_script_exec_t:dir { getattr open read };
+allow bootloader_t lib_t:file { setattr unlink };
+allow bootloader_t modules_object_t:file setattr;
