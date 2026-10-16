@@ -61,6 +61,9 @@ allow bird_lgproxy_go_t node_t:icmp_socket node_bind;
 # port 8000 defaults to soundd_port, keeping it for simplicity
 corenet_tcp_bind_soundd_port(bird_lgproxy_go_t)
 
+ifdef(`distro_redhat',`
+    fs_dontaudit_search_cgroup_dirs(bird_lgproxy_go_t)
+')
 # No need to allow Transparent HugePage
 #dev_read_sysfs(bird_lgproxy_go_t)
 dontaudit bird_lgproxy_go_t sysfs_t:file { open read };

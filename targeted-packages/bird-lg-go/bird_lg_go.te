@@ -53,6 +53,9 @@ files_pid_filetrans(bird_lg_go_t, bird_lg_go_var_run_t, { dir file lnk_file })
 allow httpd_t bird_lg_go_t:unix_stream_socket connectto;
 allow httpd_t bird_lg_go_var_run_t:sock_file write;
 
+ifdef(`distro_redhat',`
+    fs_dontaudit_search_cgroup_dirs(bird_lg_go_t)
+')
 # No need to allow Transparent HugePage
 #dev_read_sysfs(bird_lg_go_t)
 dontaudit bird_lg_go_t sysfs_t:file { open read };

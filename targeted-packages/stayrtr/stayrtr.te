@@ -43,7 +43,9 @@ corenet_tcp_bind_us_cli_port(stayrtr_t)
 
 # It doesn't do anything with these results
 kernel_dontaudit_search_network_sysctl(stayrtr_t)
-fs_dontaudit_search_cgroup_dirs(stayrtr_t)
+ifdef(`distro_redhat',`
+    fs_dontaudit_search_cgroup_dirs(stayrtr_t)
+')
 # No need to allow Transparent HugePage
 #dev_read_sysfs(stayrtr_t)
 dontaudit stayrtr_t sysfs_t:file { open read };
