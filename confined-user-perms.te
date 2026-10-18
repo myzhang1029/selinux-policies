@@ -1,10 +1,11 @@
 # semanage boolean --modify --on ssh_sysadm_login
-module confined-user-perms 1.15;
+module confined-user-perms 1.16;
 
 require {
     attribute device_node;
     attribute domain;
     attribute file_type;
+    type admin_home_t;
     type configfs_t;
     type file_context_t;
     type passwd_file_t;
@@ -26,13 +27,14 @@ require {
     class capability { fsetid sys_ptrace net_admin kill };
     class cap_userns sys_ptrace;
     class security load_policy;
-    class file { create getattr open link lock map read relabelfrom relabelto rename setattr unlink watch write };
+    class file { create execute execute_no_trans getattr ioctl open link lock map read relabelfrom relabelto rename setattr unlink watch write };
     class dir { add_name create getattr open read relabelfrom relabelto remove_name rename rmdir search setattr watch write };
     class lnk_file { getattr open read relabelfrom relabelto setattr };
     class fifo_file { getattr open read relabelfrom relabelto setattr };
     class sock_file { getattr open read relabelfrom relabelto setattr };
     class blk_file { getattr open read relabelfrom relabelto setattr };
     class chr_file { getattr open read relabelfrom relabelto setattr };
+    class netlink_route_socket nlmsg_write;
     class netlink_netfilter_socket { bind create getattr getopt read setopt write };
 }
 
@@ -46,6 +48,8 @@ allow sysadm_sudo_t var_log_t:file { unlink write };
 
 # Allow sysadm_sudo admin and firewall access
 allow sysadm_sudo_t self:capability { net_admin kill };
+allow sysadm_sudo_t admin_home_t:file  { execute execute_no_trans ioctl map };
+allow sysadm_sudo_t self:netlink_route_socket nlmsg_write;
 allow sysadm_sudo_t self:netlink_netfilter_socket { bind create getattr getopt read setopt write };
 
 # Allow sysadm_sudo to add and remove users
