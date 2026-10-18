@@ -1,0 +1,19 @@
+module chrony-logrotate 1.0;
+
+require {
+    type chronyd_runtime_t;
+    type chronyd_t;
+    type chronyc_exec_t;
+    type logrotate_t;
+    class dir { add_name remove_name write };
+    class file { execute execute_no_trans map open read };
+    class sock_file { create setattr unlink write };
+    class unix_dgram_socket sendto;
+}
+
+allow chronyd_t logrotate_t:unix_dgram_socket sendto;
+
+allow logrotate_t chronyc_exec_t:file { execute execute_no_trans map open read };
+allow logrotate_t chronyd_runtime_t:dir { add_name remove_name write };
+allow logrotate_t chronyd_runtime_t:sock_file { create setattr unlink write };
+allow logrotate_t chronyd_t:unix_dgram_socket sendto;
