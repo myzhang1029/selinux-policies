@@ -1,4 +1,4 @@
-policy_module(ripe_atlas, 1.0.26)
+policy_module(ripe_atlas, 1.0.27)
 
 ########################################
 #
@@ -40,6 +40,7 @@ require {
     type unreserved_port_t;
     type init_t;
     type proc_t;
+    type node_t;
     type shell_exec_t;
     type sysctl_net_t;
 ifdef(`distro_redhat',`
@@ -122,6 +123,7 @@ allow ripe_atlas_t self:unix_stream_socket create_stream_socket_perms;
 allow ripe_atlas_t self:unix_dgram_socket create_socket_perms;
 allow ripe_atlas_t self:icmp_socket create_socket_perms;
 allow ripe_atlas_t self:rawip_socket { bind connect create getattr read setopt write };
+allow ripe_atlas_t node_t:rawip_socket node_bind;
 allow ripe_atlas_t unreserved_port_t:rawip_socket name_bind;
 corenet_tcp_sendrecv_generic_if(ripe_atlas_t)
 corenet_udp_sendrecv_generic_if(ripe_atlas_t)
