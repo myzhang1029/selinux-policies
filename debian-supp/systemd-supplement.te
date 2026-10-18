@@ -1,4 +1,4 @@
-module systemd-supplement 1.0;
+module systemd-supplement 1.1;
 
 require {
     type systemd_journal_init_t;
@@ -9,7 +9,7 @@ require {
     type systemd_journal_t;
     class dir { search watch };
     class file { open read map };
-    class lnk_file getattr;
+    class lnk_file { getattr open read };
     class process signal;
 }
 
@@ -21,4 +21,4 @@ allow systemd_journal_init_t systemd_journal_t:file map;
 allow systemd_journal_init_t self:process signal;
 
 # systemd_tmpfiles_t
-allow systemd_tmpfiles_t bin_t:lnk_file getattr;
+allow systemd_tmpfiles_t bin_t:lnk_file { getattr open read };
