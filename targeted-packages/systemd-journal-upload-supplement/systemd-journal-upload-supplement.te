@@ -1,0 +1,63 @@
+policy_module(systemd-journal-upload-supplement, 1.0.5);
+
+ifndef(`distro_redhat',`
+    type systemd_journal_upload_t;
+    type systemd_journal_upload_exec_t;
+    init_daemon_domain(systemd_journal_upload_t, systemd_journal_upload_exec_t)
+    type systemd_journal_upload_var_lib_t;
+    files_type(systemd_journal_upload_var_lib_t)
+')
+
+type systemd_journal_upload_credentials_var_run_t;
+files_type(systemd_journal_upload_credentials_var_run_t)
+type systemd_journal_upload_var_run_t;
+files_type(systemd_journal_upload_var_run_t);
+
+require {
+    type init_t;
+ifdef(`distro_redhat',`
+    type systemd_journal_upload_t;
+')
+ifndef(`distro_redhat',`
+    class unix_dgram_socket { connect create getopt setopt write };
+    class tcp_socket { connect create getattr getopt read setopt write };
+')
+    class dir { add_name getattr lock ioctl open read remove_name search setattr write };
+    class file { append create getattr lock ioctl open read rename setattr unlink watch write };
+}
+
+allow systemd_journal_upload_t systemd_journal_upload_var_run_t:dir { add_name getattr lock ioctl open read remove_name search setattr write };
+allow systemd_journal_upload_t systemd_journal_upload_var_run_t:file { append create getattr lock ioctl open read rename setattr unlink write };
+allow systemd_journal_upload_t systemd_journal_upload_var_run_t:lnk_file { create getattr setattr read write append rename link unlink ioctl lock };
+allow systemd_journal_upload_t systemd_journal_upload_credentials_var_run_t:dir { getattr open read search };
+allow systemd_journal_upload_t systemd_journal_upload_credentials_var_run_t:file { getattr open read };
+
+allow init_t systemd_journal_upload_var_run_t:dir { remove_name rmdir };
+allow init_t systemd_journal_upload_var_run_t:file unlink;
+allow init_t systemd_journal_upload_credentials_var_run_t:dir { add_name remove_name rmdir };
+allow init_t systemd_journal_upload_credentials_var_run_t:file { create open read rename setattr write };
+
+ifndef(`distro_redhat',`
+    allow systemd_journal_upload_t self:tcp_socket { connect create getattr getopt read setopt write };
+    allow systemd_journal_upload_t self:unix_dgram_socket { connect create getopt setopt write };
+    allow systemd_journal_upload_t systemd_journal_t:dir { getattr open read search watch };
+    kernel_dgram_send(systemd_journal_upload_t)
+    corenet_tcp_connect_generic_port(systemd_journal_upload_t)
+    files_read_etc_runtime_files(systemd_journal_upload_t)
+    files_read_etc_symlinks(systemd_journal_upload_t)
+    fs_getattr_nsfs_files(systemd_journal_upload_t)
+    fs_getattr_tmpfs(systemd_journal_upload_t)
+    fs_search_tmpfs(systemd_journal_upload_t)
+    kernel_getattr_proc(systemd_journal_upload_t)
+    kernel_read_kernel_sysctls(systemd_journal_upload_t)
+    kernel_read_system_state(systemd_journal_upload_t)
+    logging_create_devlog(systemd_journal_upload_t)
+    logging_manage_runtime_sockets(systemd_journal_upload_t)
+    logging_search_logs(systemd_journal_upload_t)
+    logging_send_syslog_msg(systemd_journal_upload_t)
+    miscfiles_getattr_localization(systemd_journal_upload_t)
+    miscfiles_read_generic_certs(systemd_journal_upload_t)
+    miscfiles_rw_localization(systemd_journal_upload_t)
+    miscfiles_search_generic_cert_dirs(systemd_journal_upload_t)
+    systemd_read_journal_files(systemd_journal_upload_t)
+')

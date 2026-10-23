@@ -1,5 +1,6 @@
 Program             Tested On
 ------------------- ---------
+acmesh              Both
 bird                Both
 bird_lg_go          RHEL only
 bird_lgproxy_go     Both
@@ -10,3 +11,4 @@ routinator          RHEL only
 stayrtr             RHEL only
 vlmcsd              RHEL only
 zerotier            RHEL only
+systemd-journal-upload-supplement Both

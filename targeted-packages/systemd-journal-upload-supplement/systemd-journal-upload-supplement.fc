@@ -1,0 +1,6 @@
+ifndef(`distro_redhat',`
+/usr/lib/systemd/systemd-journal-upload                --   gen_context(system_u:object_r:systemd_journal_upload_exec_t,s0)
+/var/lib/private/systemd/journal-upload(/.*)?               gen_context(system_u:object_r:systemd_journal_upload_var_lib_t,s0)
+')
+/run/systemd/journal-upload(/.*)?                           gen_context(system_u:object_r:systemd_journal_upload_var_run_t,s0)
+/run/credentials/systemd-journal-upload.service(/.*)?       gen_context(system_u:object_r:systemd_journal_upload_credentials_var_run_t,s0)
