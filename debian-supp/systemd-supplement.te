@@ -1,13 +1,15 @@
-module systemd-supplement 1.1;
+module systemd-supplement 1.2;
 
 require {
     type systemd_journal_init_t;
     type systemd_tmpfiles_t;
+    type systemd_generator_t;
     type bin_t;
     type var_log_t;
     type etc_runtime_t;
     type systemd_journal_t;
-    class dir { search watch };
+    type swapfile_t;
+    class dir { getattr search watch };
     class file { open read map };
     class lnk_file { getattr open read };
     class process signal;
@@ -22,3 +24,6 @@ allow systemd_journal_init_t self:process signal;
 
 # systemd_tmpfiles_t
 allow systemd_tmpfiles_t bin_t:lnk_file { getattr open read };
+
+# systemd_generator_t
+allow systemd_generator_t swapfile_t:dir getattr;
