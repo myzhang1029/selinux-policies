@@ -1,5 +1,5 @@
 # semanage boolean --modify --on ssh_sysadm_login
-module confined-user-perms 1.16;
+module confined-user-perms 1.17;
 
 require {
     attribute device_node;
@@ -54,7 +54,7 @@ allow sysadm_sudo_t self:netlink_netfilter_socket { bind create getattr getopt r
 
 # Allow sysadm_sudo to add and remove users
 allow sysadm_sudo_t file_type:dir { add_name create setattr write };
-allow sysadm_sudo_t file_type:file { create setattr write };
+allow sysadm_sudo_t file_type:file { create map setattr write };
 allow sysadm_sudo_t etc_t:dir { add_name remove_name write };
 allow sysadm_sudo_t etc_t:file { create link unlink write };
 allow sysadm_sudo_t var_lib_t:dir { add_name write };
