@@ -1,4 +1,4 @@
-module confined-ksplice 1.3;
+module confined-ksplice 1.5;
 
 require {
     type http_port_t;
@@ -8,13 +8,13 @@ require {
     type var_t;
     type var_run_t;
     class tcp_socket name_connect;
-    class dir add_name;
-    class file { create ioctl lock open read setattr write };
+    class dir { add_name remove_name rename };
+    class file { create ioctl lock open read setattr unlink write };
 }
 
 allow init_t http_port_t:tcp_socket name_connect;
 allow init_t var_t:file { create ioctl open read write };
-allow init_t modules_object_t:dir add_name;
-allow init_t modules_object_t:file { create setattr write };
+allow init_t modules_object_t:dir { add_name remove_name rename };
+allow init_t modules_object_t:file { create setattr unlink write };
 
 allow kmod_t var_run_t:file { lock open write };

@@ -1,4 +1,4 @@
-policy_module(acmesh-nonroot, 1.0.7)
+policy_module(acmesh-nonroot, 1.0.8)
 
 ########################################
 #
@@ -20,6 +20,7 @@ require {
 ifdef(`distro_redhat',`
     type passwd_file_t;
 ')
+    type systemd_userdbd_runtime_t;
     class dir { add_name getattr lock ioctl open read remove_name search setattr write };
     class file { append create getattr lock ioctl open read setattr unlink write };
     class lnk_file { create getattr setattr read write append rename link unlink ioctl lock };
@@ -60,6 +61,7 @@ corecmd_shell_entry_type(acmesh_nonroot_t)
 ifdef(`distro_redhat',`
     dontaudit acmesh_nonroot_t passwd_file_t:file { getattr open read };
 ')
+dontaudit acmesh_nonroot_t systemd_userdbd_runtime_t:dir read;
 
 files_read_etc_files(acmesh_nonroot_t)
 domain_use_interactive_fds(acmesh_nonroot_t)
