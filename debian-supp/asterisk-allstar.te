@@ -1,4 +1,4 @@
-module asterisk-allstar 1.1;
+module asterisk-allstar 1.2;
 
 require {
     type asterisk_t;
@@ -10,8 +10,9 @@ require {
     type udev_runtime_t;
     type unreserved_port_t;
     type http_port_t;
+    type systemd_logind_t;
     class tcp_socket { name_connect name_bind };
-    class dir { create getattr search setattr };
+    class dir { create getattr read search setattr };
     class file { getattr map open read };
     class lnk_file { create read rename unlink };
     class netlink_kobject_uevent_socket { bind create getattr getopt read setopt };
@@ -33,3 +34,6 @@ allow asterisk_t udev_runtime_t:file { getattr open read };
 
 allow asterisk_t http_port_t:tcp_socket name_connect;
 allow asterisk_t unreserved_port_t:tcp_socket { name_connect name_bind };
+
+#============= systemd_logind_t ==============
+allow systemd_logind_t asterisk_tmpfs_t:dir read;
