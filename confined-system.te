@@ -1,4 +1,4 @@
-module confined-system 1.3;
+module confined-system 1.4;
 
 require {
     type http_port_t;
@@ -7,15 +7,19 @@ require {
     type fsadm_t;
     type udev_t;
     type semanage_t;
+    type journalctl_t;
+    type sshd_session_t;
     type named_cache_t;
     type initrc_tmp_t;
     type file_context_t;
     type semanage_store_t;
     type selinux_config_t;
     type nsfs_t;
+    type user_home_dir_t;
+    type sysctl_net_t;
     class tcp_socket name_connect;
     class file { open getattr read relabelfrom relabelto };
-    class dir { relabelfrom relabelto };
+    class dir { relabelfrom relabelto write };
     class netlink_generic_socket { bind create getattr read write };
     class system status;
 }
@@ -36,3 +40,9 @@ allow semanage_t file_context_t:file { relabelfrom relabelto };
 allow semanage_t selinux_config_t:file { relabelfrom relabelto };
 allow semanage_t semanage_store_t:dir { relabelfrom relabelto };
 allow semanage_t semanage_store_t:file { relabelfrom relabelto };
+
+# journalctl invokes `less` who wants to write history
+dontaudit journalctl_t user_home_dir_t:dir write;
+
+# Upstream bug
+dontaudit sshd_session_t sysctl_net_t:file read;

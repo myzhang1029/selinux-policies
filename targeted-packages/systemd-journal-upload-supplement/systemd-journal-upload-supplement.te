@@ -1,4 +1,4 @@
-policy_module(systemd-journal-upload-supplement, 1.0.5);
+policy_module(systemd-journal-upload-supplement, 1.0.6);
 
 ifndef(`distro_redhat',`
     type systemd_journal_upload_t;
@@ -46,6 +46,7 @@ ifndef(`distro_redhat',`
     files_read_etc_runtime_files(systemd_journal_upload_t)
     files_read_etc_symlinks(systemd_journal_upload_t)
     fs_getattr_nsfs_files(systemd_journal_upload_t)
+    fs_getattr_xattr_fs(systemd_journal_upload_t)
     fs_getattr_tmpfs(systemd_journal_upload_t)
     fs_search_tmpfs(systemd_journal_upload_t)
     kernel_getattr_proc(systemd_journal_upload_t)
@@ -57,7 +58,7 @@ ifndef(`distro_redhat',`
     logging_send_syslog_msg(systemd_journal_upload_t)
     miscfiles_getattr_localization(systemd_journal_upload_t)
     miscfiles_read_generic_certs(systemd_journal_upload_t)
-    miscfiles_rw_localization(systemd_journal_upload_t)
+    miscfiles_read_localization(systemd_journal_upload_t)
     miscfiles_search_generic_cert_dirs(systemd_journal_upload_t)
     systemd_read_journal_files(systemd_journal_upload_t)
 ')
