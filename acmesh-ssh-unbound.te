@@ -1,12 +1,22 @@
-module acmesh-ssh-unbound 1.0;
+module acmesh-ssh-unbound 1.1;
 
 require {
     type acmesh_nonroot_t;
     type ssh_exec_t;
     type ssh_port_t;
+    type staff_sudo_t;
+    type krb5_conf_t;
+    type rpm_script_t;
+    type krb5_keytab_t;
+    class process signal;
     class file { execute execute_no_trans getattr ioctl map open read };
+    class dir search;
+    class key { read view write };
     class tcp_socket name_connect;
 }
 
 allow acmesh_nonroot_t ssh_exec_t:file { execute execute_no_trans getattr map open read };
 allow acmesh_nonroot_t ssh_port_t:tcp_socket name_connect;
+allow acmesh_nonroot_t krb5_conf_t:file { getattr open read };
+allow acmesh_nonroot_t krb5_keytab_t:dir search;
+allow acmesh_nonroot_t self:key { read view write };

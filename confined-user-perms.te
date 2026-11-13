@@ -1,5 +1,5 @@
 # semanage boolean --modify --on ssh_sysadm_login
-module confined-user-perms 1.17;
+module confined-user-perms 1.18;
 
 require {
     attribute device_node;
@@ -15,13 +15,16 @@ require {
     type semanage_store_t;
     type security_t;
     type selinux_config_t;
+    type rpm_script_t;
     type etc_t;
     type tmp_t;
     type var_log_t;
     type var_lib_t;
     type syslogd_var_run_t;
     type init_var_lib_t;
+    type init_t;
     type staff_t;
+    type staff_sudo_t;
     type sysadm_t;
     type sysadm_sudo_t;
     class capability { fsetid sys_ptrace net_admin kill };
@@ -36,15 +39,24 @@ require {
     class chr_file { getattr open read relabelfrom relabelto setattr };
     class netlink_route_socket nlmsg_write;
     class netlink_netfilter_socket { bind create getattr getopt read setopt write };
+    class process signal;
 }
 
-allow { staff_t sysadm_t sysadm_sudo_t } tmp_t:file { open unlink write };
+allow { staff_t staff_sudo_t sysadm_t sysadm_sudo_t } tmp_t:file { open unlink write };
 # All staff can read journal
-allow { staff_t sysadm_t sysadm_sudo_t } var_log_t:file { open map read };
-allow { staff_t sysadm_t sysadm_sudo_t } var_log_t:dir watch;
-allow { staff_t sysadm_t sysadm_sudo_t } syslogd_var_run_t:dir watch;
-allow { staff_t sysadm_t sysadm_sudo_t } init_var_lib_t:file map;
+allow { staff_t staff_sudo_t sysadm_t sysadm_sudo_t } var_log_t:file { open map read };
+allow { staff_t staff_sudo_t sysadm_t sysadm_sudo_t } var_log_t:dir watch;
+allow { staff_t staff_sudo_t sysadm_t sysadm_sudo_t } syslogd_var_run_t:dir watch;
+allow { staff_t staff_sudo_t sysadm_t sysadm_sudo_t } init_var_lib_t:file map;
 allow sysadm_sudo_t var_log_t:file { unlink write };
+
+# Allow staff limited ioctl
+## TCGETS
+allowxperm { staff_t staff_sudo_t sysadm_t sysadm_sudo_t } file_type:file ioctl 0x5401;
+allowxperm { staff_t staff_sudo_t sysadm_t sysadm_sudo_t } init_t:file ioctl 0x5401;
+
+# Allow staff_sudo to send signal to rpm
+allow staff_sudo_t rpm_script_t:process signal;
 
 # Allow sysadm_sudo admin and firewall access
 allow sysadm_sudo_t self:capability { net_admin kill };
