@@ -1,5 +1,5 @@
 # semanage boolean --modify --on ssh_sysadm_login
-module confined-user-perms 1.18;
+module confined-user-perms 1.19;
 
 require {
     attribute device_node;
@@ -27,7 +27,7 @@ require {
     type staff_sudo_t;
     type sysadm_t;
     type sysadm_sudo_t;
-    class capability { fsetid sys_ptrace net_admin kill };
+    class capability { fsetid sys_boot sys_ptrace net_admin kill };
     class cap_userns sys_ptrace;
     class security load_policy;
     class file { create execute execute_no_trans getattr ioctl open link lock map read relabelfrom relabelto rename setattr unlink watch write };
@@ -59,7 +59,7 @@ allowxperm { staff_t staff_sudo_t sysadm_t sysadm_sudo_t } init_t:file ioctl 0x5
 allow staff_sudo_t rpm_script_t:process signal;
 
 # Allow sysadm_sudo admin and firewall access
-allow sysadm_sudo_t self:capability { net_admin kill };
+allow sysadm_sudo_t self:capability { net_admin kill sys_boot };
 allow sysadm_sudo_t admin_home_t:file  { execute execute_no_trans ioctl map };
 allow sysadm_sudo_t self:netlink_route_socket nlmsg_write;
 allow sysadm_sudo_t self:netlink_netfilter_socket { bind create getattr getopt read setopt write };
